@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%231C1C1C%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-size=%2719%27 text-anchor=%27middle%27 fill=%27%23EBA044%27 font-family=%27Arial%27%3EP%3C/text%3E%3C/svg%3E">
+<title>Training Cost Calculator</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Рабочий прототип калькулятора стоимости обучения для Pelican Flight Training, вариант B.">
+<style>
+:root{
+  --dark:#1C1C1C; --gold:#EBA044; --gold-l:#FBCF4D; --gold-dk:#b5761f;
+  --bg:#f4f5f7; --card:#ffffff; --text:#26292e; --muted:#6b7280;
+  --line:#e5e7eb; --soft:#f7f8fa; --fixed:#1f7a4d; --fixed-bg:#e8f5ee;
+  --warn:#8a6d1f; --warn-bg:#fdf6e3;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121417; --card:#1a1d21; --text:#e6e8ea; --muted:#99a0aa;
+  --line:#2b2f35; --soft:#212529; --fixed:#5cc98e; --fixed-bg:#16301f;
+  --warn:#e0be6a; --warn-bg:#2d2616;
+}}
+:root[data-theme="dark"]{
+  --bg:#121417; --card:#1a1d21; --text:#e6e8ea; --muted:#99a0aa;
+  --line:#2b2f35; --soft:#212529; --fixed:#5cc98e; --fixed-bg:#16301f;
+  --warn:#e0be6a; --warn-bg:#2d2616;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+.masthead{background:var(--dark);color:#fff;padding:24px 0 20px;border-bottom:3px solid var(--gold)}
+.masthead .brand{font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin:0 0 6px}
+.masthead h1{margin:0;font-size:24px;font-weight:700}
+.masthead p{margin:7px 0 0;color:#b9bcc1;font-size:14px;max-width:74ch}
+.masthead .row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.masthead a{color:var(--gold-l)}
+.tbtn{background:transparent;border:1px solid #3a3d42;color:#cfd2d6;border-radius:8px;
+  padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}
+
+.demo-note{background:var(--warn-bg);border-bottom:1px solid var(--line);
+  padding:12px 0;font-size:13.5px;color:var(--text)}
+.demo-note b{color:var(--warn)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:26px;
+  align-items:start;padding:26px 0 60px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px}
+.card h2{margin:0 0 4px;font-size:18px}
+.card .lede{margin:0 0 18px;color:var(--muted);font-size:13.5px}
+
+.field{margin-bottom:17px}
+.field label{display:block;font-weight:600;font-size:13.5px;margin-bottom:7px}
+.field .hint{font-weight:400;color:var(--muted);font-size:12.5px;display:block;margin-top:2px}
+select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;
+  background:var(--soft);color:var(--text);font:inherit;font-size:14.5px;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:38px}
+select:focus{outline:2px solid var(--gold);outline-offset:1px}
+.check{display:flex;gap:9px;align-items:flex-start;font-size:14px;cursor:pointer;
+  padding:11px 12px;background:var(--soft);border:1px solid var(--line);border-radius:8px}
+.check input{margin:2px 0 0;flex-shrink:0;width:16px;height:16px;accent-color:var(--gold-dk)}
+.hidden{display:none}
+
+/* результат */
+.res{position:sticky;top:20px}
+.total{background:var(--dark);color:#fff;border-radius:12px;padding:22px;margin-bottom:16px}
+.total .cap{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);
+  font-weight:700;margin:0 0 8px}
+.total .big{font-size:31px;font-weight:700;line-height:1.15;letter-spacing:-.5px}
+.total .prog{margin:11px 0 0;font-size:14px;color:#c9ccd1}
+.total .tl{margin:4px 0 0;font-size:13.5px;color:#9fa4ab}
+
+.rows{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:15px}
+.row{display:flex;justify-content:space-between;gap:14px;padding:13px 15px;
+  border-bottom:1px solid var(--line);background:var(--card);align-items:flex-start}
+.row:last-child{border-bottom:0}
+.row .l{font-size:14px}
+.row .l small{display:block;color:var(--muted);font-size:12px;margin-top:2px;line-height:1.45}
+.row .v{font-size:14.5px;font-weight:600;white-space:nowrap;text-align:right}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;padding:2px 7px;border-radius:999px;margin-left:7px;vertical-align:2px}
+.tag.f{background:var(--fixed-bg);color:var(--fixed)}
+.tag.e{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.tag.q{background:var(--warn-bg);color:var(--warn)}
+
+.disc{background:var(--warn-bg);border-left:4px solid var(--gold);border-radius:0 9px 9px 0;
+  padding:13px 15px;font-size:13px;line-height:1.6;margin-bottom:16px}
+.disc b{color:var(--warn)}
+
+.inc{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.inc h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.inc ul{margin:0;padding-left:17px;font-size:13px;line-height:1.55}
+.inc li{margin:3px 0}
+
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.btn{flex:1 1 170px;text-align:center;padding:13px 16px;border-radius:9px;font-weight:700;
+  font-size:14.5px;text-decoration:none;border:2px solid transparent;cursor:pointer;font-family:inherit}
+.btn.p{background:var(--gold);color:#1C1C1C}
+.btn.p:hover{background:var(--gold-l)}
+.btn.s{background:transparent;color:var(--text);border-color:var(--line)}
+.btn.s:hover{border-color:var(--gold)}
+
+.visa{margin-top:15px;padding:13px 15px;background:var(--soft);border:1px solid var(--line);
+  border-radius:9px;font-size:13px;line-height:1.6}
+.visa h3{margin:0 0 5px;font-size:13.5px}
+
+.foot{border-top:1px solid var(--line);padding:20px 0 46px;font-size:13px;color:var(--muted)}
+.foot a{color:var(--gold-dk)}
+
+@media (max-width:880px){
+  .grid{grid-template-columns:1fr;padding:20px 0 46px}
+  .res{position:static}
+  .total .big{font-size:27px}
+  .inc{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap row">
+    <div>
+      <p class="brand">Pelican Flight Training · прототип</p>
+      <h1>Training Cost Calculator</h1>
+      <p>Рабочий прототип варианта B. Считает по реальному прайсу с сайта. Это демонстрация механики, а не готовый к публикации блок. <a href="index.html">Вернуться к описанию</a></p>
+    </div>
+    <button class="tbtn" onclick="tt()">Сменить тему</button>
+  </div>
+</header>
+
+<div class="demo-note"><div class="wrap">
+  <b>Как читать прототип.</b> Цены программ взяты с /programs-courses/ и помечены <span class="tag f">fixed</span>. Оценочные строки помечены <span class="tag e">estimated</span>. Строки, для которых у нас пока нет подтверждённых данных от школы, помечены <span class="tag q">нужны данные</span>: это ровно тот список, который в описании назван обязательным к получению от школы.
+</div></div>
+
+<div class="wrap">
+<div class="grid">
+
+  <form class="card" id="f" onsubmit="return false">
+    <h2>Your situation</h2>
+    <p class="lede">Шесть полей. Результат показывается сразу, без email и телефона.</p>
+
+    <div class="field">
+      <label for="start">1. Where you are starting from</label>
+      <select id="start"></select>
+    </div>
+
+    <div class="field">
+      <label for="goal">2. What you want to achieve</label>
+      <select id="goal"></select>
+    </div>
+
+    <div class="field" id="acWrap">
+      <label for="ac">3. Aircraft for your Private Pilot training
+        <span class="hint">Влияет только на тариф PPL</span></label>
+      <select id="ac">
+        <option value="c152">Cessna 152 — $14,155</option>
+        <option value="c172">Cessna 172 — $15,702</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="pace">4. Training pace
+        <span class="hint">Определяет срок, а срок определяет расходы на жизнь</span></label>
+      <select id="pace">
+        <option value="ft">Full time, 5 to 6 days a week</option>
+        <option value="pt">Part time, 3 to 4 days a week</option>
+        <option value="we">Light, about 2 days a week</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="house">5. Housing during training</label>
+      <select id="house">
+        <option value="750">Shared room — $750 a month</option>
+        <option value="1500">Private room — $1,500 a month</option>
+        <option value="0">I have my own place — $0</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="cit">6. Your status</label>
+      <select id="cit">
+        <option value="us">US citizen or permanent resident</option>
+        <option value="intl">International student, F-1 visa</option>
+      </select>
+    </div>
+
+    <div class="field" id="cfiWrap">
+      <label class="check"><input type="checkbox" id="cfi">
+        <span>Add the CFI certificate to build hours toward ATP
+          <span class="hint">$8,325, работа инструктором в США после CPL</span></span></label>
+    </div>
+
+    <div class="field">
+      <label class="check"><input type="checkbox" id="retake">
+        <span>Show the scenario where one checkride has to be repeated
+          <span class="hint">Самая частая причина расхождения ожидания и факта</span></span></label>
+    </div>
+  </form>
+
+  <div class="res">
+    <div class="total">
+      <p class="cap">Estimated total, all in</p>
+      <div class="big" id="big">—</div>
+      <p class="prog" id="prog"></p>
+      <p class="tl" id="tl"></p>
+    </div>
+
+    <div class="rows" id="rows"></div>
+
+    <div class="disc">
+      <b>This is an estimate, not a quote.</b> The tuition line is the published program price and is fixed by your enrollment contract. Every other line is an estimate. Your actual total depends on your pace, the weather, how many hours you need before each checkride, and your personal spending.
+      <br><br>Формулировку дисклеймера на сайте согласовывает тот, кто отвечает за enrollment contract.
+    </div>
+
+    <div class="inc">
+      <div><h3>Included in tuition</h3><ul id="incl"></ul></div>
+      <div><h3>Not included</h3><ul id="excl"></ul></div>
+    </div>
+
+    <div class="visa hidden" id="visa">
+      <h3>International students, F-1</h3>
+      Расчёт включает медстраховку $75 в месяц. Государственные сборы (I-901 SEVIS, консульский сбор, TSA AFSP) сюда <b>не входят</b>: их суммы меняются, поэтому в продакшене они даются ссылкой на официальный источник, а не зашиваются в калькулятор.
+    </div>
+
+    <div class="cta" style="margin-top:16px">
+      <a class="btn p" href="#" onclick="return false">Get a written quote</a>
+      <a class="btn s" href="#" onclick="return false">Apply now</a>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);margin:10px 0 0">
+      Контакт запрашивается только здесь, после результата. Ни один из двенадцати проверенных инструментов конкурентов не закрывает результат формой.</p>
+  </div>
+
+</div>
+
+<div class="foot">
+  Прототип к описанию «Калькулятор стоимости обучения». Цены соответствуют странице
+  <a href="https://pelicanflightschool.com/programs-courses/">programs-courses</a>.
+  Внутренний материал, страница закрыта от индексации.
+</div>
+</div>
+
+<script>
+function tt(){
+  var r=document.documentElement, cur=r.getAttribute('data-theme');
+  if(!cur) cur=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  var n=cur==='dark'?'light':'dark';
+  r.setAttribute('data-theme',n);
+  try{localStorage.setItem('pft-theme',n)}catch(e){}
+}
+try{var s=localStorage.getItem('pft-theme'); if(s)document.documentElement.setAttribute('data-theme',s)}catch(e){}
+
+/* ------------------------------------------------------------------
+   ПРАЙС. Единственное место, где живут цены.
+   Все суммы взяты со страницы /programs-courses/.
+   ------------------------------------------------------------------ */
+var PRICE = {
+  ppp:        68310,   // Professional Pilot Program, zero to CPL, включает PPL+IR+CPL+MEL
+  pph:        75380,   // Professional Helicopter Program H
+  ppl152:     14155,
+  ppl172:     15702,
+  ir:         14653,
+  cpl:        58782,   // включает IR, если его нет
+  mel:         6380,
+  pplh:       18950,
+  irh:        16300,
+  cplh:       26359,
+  cfi:         8325,
+  cfii:       32298,
+  mei:         6379,   // Part 61
+  cfih:        9233,
+  cfiih:       5956,
+  addH:       18950,   // вертолётный add-on, от
+  convLo:      8000, convHi: 54000,
+  // сторонние сборы
+  written:      175,   // за каждый письменный экзамен
+  ckLo:         800, ckHi: 1800,   // чекрайд, DPE
+  medLo:        100, medHi: 350,
+  insIntl:       75    // медстраховка международного студента, в месяц
+};
+
+/* Строки, по которым у школы ещё не запрошены подтверждённые цифры.
+   Соответствуют разделу «какие данные нужны от школы» в описании. */
+var NEEDS = {
+  gearLo: 900, gearHi: 2400,   // гарнитура, книги, iPad, подписки
+  enroll: null                 // невозвратный enrollment fee: сумма на сайте не указана
+};
+
+var STARTS = [
+  {v:'zero',  t:'No experience, zero hours'},
+  {v:'ppl',   t:'I hold an FAA Private Pilot certificate'},
+  {v:'cpl',   t:'I hold an FAA Commercial Pilot certificate'},
+  {v:'pplh',  t:'I hold a Private Pilot certificate, helicopter'},
+  {v:'apl',   t:'I am a licensed airplane pilot, adding helicopter'},
+  {v:'foreign', t:'I hold a foreign licence, ICAO or EASA'}
+];
+
+/* Матрица: стартовая точка -> доступные цели.
+   steps: строки тарифа. wr: письменных экзаменов. ck: чекрайдов. mo: базовый срок в месяцах. */
+var PATHS = {
+  zero: [
+    {v:'ppl', t:'Private Pilot certificate (PPL)', mo:[3,5], wr:1, ck:1,
+     steps:[{k:'ppl',n:'Private Pilot Certification'}]},
+    {v:'cpla', t:'Commercial Pilot, airplane, from zero', mo:[14,18], wr:3, ck:4,
+     steps:[{k:'ppp',n:'Professional Pilot Program, bundled'}],
+     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Simulator time','Aircraft for the checkride','PPL, Instrument, Commercial and Multi-Engine'],
+     note:'Bundled price. Оплата по этапам, stage-based payment plan.'},
+    {v:'cplh', t:'Commercial Pilot, helicopter, from zero', mo:[14,18], wr:3, ck:3,
+     steps:[{k:'pph',n:'Professional Helicopter Program H'}],
+     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','PPL-H, Instrument-H and Commercial-H'],
+     note:'FAA Part 141, одна из немногих вертолётных программ такого уровня в США.'}
+  ],
+  ppl: [
+    {v:'ir', t:'Add an Instrument Rating', mo:[3,4], wr:1, ck:1,
+     steps:[{k:'ir',n:'Instrument Pilot Rating'}]},
+    {v:'cpla', t:'Commercial Pilot, airplane', mo:[9,12], wr:2, ck:2,
+     steps:[{k:'cpl',n:'Commercial Pilot Certification, includes Instrument'},
+            {k:'mel',n:'Multi-Engine Pilot Certification'}]}
+  ],
+  cpl: [
+    {v:'cfib', t:'Instructor bundle: CFI, CFII and MEI', mo:[4,7], wr:3, ck:3,
+     steps:[{k:'cfi',n:'Certified Flight Instructor'},
+            {k:'cfii',n:'CFII, Instrument Instructor'},
+            {k:'mei',n:'MEI, Multi-Engine Instructor'}],
+     note:'Путь к налёту часов до ATP через работу инструктором в США.'}
+  ],
+  pplh: [
+    {v:'cplh', t:'Commercial Pilot, helicopter', mo:[9,12], wr:2, ck:2,
+     steps:[{k:'irh',n:'Helicopter Instrument Rating'},
+            {k:'cplh',n:'Helicopter Commercial Pilot Licence'}]},
+    {v:'cfihb', t:'Helicopter instructor: CFI-H and CFII-H', mo:[3,5], wr:2, ck:2,
+     steps:[{k:'cfih',n:'Helicopter Certified Flight Instructor'},
+            {k:'cfiih',n:'Helicopter Instrument Instructor'}]}
+  ],
+  apl: [
+    {v:'addh', t:'Add a helicopter rating', mo:[3,5], wr:1, ck:1,
+     steps:[{k:'addH',n:'Helicopter Add-On Rating, from'}],
+     note:'Цена указана как «от», итог зависит от вашего налёта.'}
+  ],
+  foreign: [
+    {v:'conv', t:'Convert my licence to FAA', mo:[2,6], wr:1, ck:1,
+     steps:[{k:'conv',n:'ICAO or EASA conversion to FAA'}],
+     note:'Диапазон широкий, потому что зависит от того, какой у вас документ на входе.'}
+  ]
+};
+
+var PACE = {ft:{m:1.0,t:'full time'}, pt:{m:1.4,t:'3 to 4 days a week'}, we:{m:1.9,t:'about 2 days a week'}};
+
+var DEFAULT_INCL = ['Ground school','Dual instruction','Solo flight time','Fuel and maintenance','Aircraft for the checkride'];
+var DEFAULT_EXCL = ['FAA written exam fees','DPE checkride fees','FAA medical certificate','Headset, books and supplies','Housing and living costs','Transport and personal spending'];
+
+var $ = function(id){return document.getElementById(id)};
+var money = function(n){return '$'+Math.round(n).toLocaleString('en-US')};
+
+function fill(sel, arr, vt, tt){
+  sel.innerHTML='';
+  arr.forEach(function(o){
+    var op=document.createElement('option');
+    op.value=o[vt]; op.textContent=o[tt]; sel.appendChild(op);
+  });
+}
+
+function goals(){
+  var st=$('start').value;
+  var prev=$('goal').value;
+  fill($('goal'), PATHS[st], 'v','t');
+  for(var i=0;i<$('goal').options.length;i++){
+    if($('goal').options[i].value===prev){$('goal').value=prev;break;}
+  }
+}
+
+function calc(){
+  var st=$('start').value, gv=$('goal').value;
+  var path=null;
+  PATHS[st].forEach(function(p){ if(p.v===gv) path=p; });
+  if(!path) path=PATHS[st][0];
+
+  var pace=PACE[$('pace').value];
+  var house=parseInt($('house').value,10);
+  var intl=$('cit').value==='intl';
+  var wantCfi=$('cfi').checked;
+  var retake=$('retake').checked;
+
+  /* PPL-самолёт есть только там, где в шагах есть ppl */
+  var hasPpl = path.steps.some(function(s){return s.k==='ppl'});
+  $('acWrap').className = hasPpl ? 'field' : 'field hidden';
+
+  /* CFI добора часов предлагаем только тем, кто идёт к CPL самолёта и ещё не в инструкторском пути */
+  var cfiOffer = (gv==='cpla');
+  $('cfiWrap').className = cfiOffer ? 'field' : 'field hidden';
+  if(!cfiOffer) wantCfi=false;
+
+  /* ---- 1. Тариф, фиксированная часть ---- */
+  var tLo=0, tHi=0, names=[];
+  path.steps.forEach(function(s){
+    var lo,hi;
+    if(s.k==='ppl'){ lo=hi=($('ac').value==='c152'?PRICE.ppl152:PRICE.ppl172); }
+    else if(s.k==='conv'){ lo=PRICE.convLo; hi=PRICE.convHi; }
+    else { lo=hi=PRICE[s.k]; }
+    tLo+=lo; tHi+=hi; names.push(s.n);
+  });
+  var wr=path.wr, ck=path.ck, moLo=path.mo[0], moHi=path.mo[1];
+  if(wantCfi){ tLo+=PRICE.cfi; tHi+=PRICE.cfi; names.push('Certified Flight Instructor');
+               wr+=1; ck+=1; moLo+=2; moHi+=3; }
+  if(retake){ ck+=1; moLo+=1; moHi+=1; }
+
+  /* ---- 2. Срок ---- */
+  var mLo=Math.round(moLo*pace.m), mHi=Math.round(moHi*pace.m);
+
+  /* ---- 3. Сторонние сборы ---- */
+  var fLo = wr*PRICE.written + ck*PRICE.ckLo + PRICE.medLo;
+  var fHi = wr*PRICE.written + ck*PRICE.ckHi + PRICE.medHi;
+
+  /* ---- 4. Жизнь ---- */
+  var perMo = house + (intl?PRICE.insIntl:0);
+  var lLo = perMo*mLo, lHi = perMo*mHi;
+
+  /* ---- 5. Снаряжение, данных от школы пока нет ---- */
+  var gLo=NEEDS.gearLo, gHi=NEEDS.gearHi;
+
+  var lo=tLo+fLo+lLo+gLo, hi=tHi+fHi+lHi+gHi;
+
+  /* ---- вывод ---- */
+  $('big').textContent = (lo===hi) ? money(lo) : money(lo)+' to '+money(hi);
+  $('prog').textContent = names.join(' + ');
+  $('tl').textContent = mLo+' to '+mHi+' months at '+pace.t+
+      (retake?', including one repeated checkride':'');
+
+  var rows=[
+    ['Tuition', names.length+(names.length>1?' programs from the price list':' program from the price list'),
+      (tLo===tHi?money(tLo):money(tLo)+' to '+money(tHi)), 'f','fixed'],
+    ['FAA and examiner fees', wr+' written exam'+(wr>1?'s':'')+' at $175, '+ck+' checkride'+(ck>1?'s':'')+' at $800 to $1,800, medical certificate',
+      money(fLo)+' to '+money(fHi), 'e','estimated'],
+    ['Living costs', (house===0?'Own accommodation':money(house)+' a month')+
+      (intl?' plus $75 a month health insurance':'')+', over '+mLo+' to '+mHi+' months',
+      (lLo===0&&lHi===0)?'$0':money(lLo)+' to '+money(lHi), 'e','estimated'],
+    ['Gear and books', 'Headset, books, tablet, subscriptions. Точных цифр от школы пока нет, здесь рыночный ориентир',
+      money(gLo)+' to '+money(gHi), 'q','нужны данные'],
+    ['Enrollment fee', 'На сайте сбор назван, но сумма не указана. В расчёт не включён',
+      'не указана', 'q','нужны данные']
+  ];
+  $('rows').innerHTML = rows.map(function(r){
+    return '<div class="row"><div class="l">'+r[0]+'<span class="tag '+r[3]+'">'+r[4]+'</span>'+
+           '<small>'+r[1]+'</small></div><div class="v">'+r[2]+'</div></div>';
+  }).join('') + (path.note?'<div class="row"><div class="l"><small>'+path.note+'</small></div></div>':'');
+
+  var incl = path.incl || DEFAULT_INCL;
+  $('incl').innerHTML = incl.map(function(x){return '<li>'+x+'</li>'}).join('');
+  $('excl').innerHTML = DEFAULT_EXCL.map(function(x){return '<li>'+x+'</li>'}).join('');
+  $('visa').className = intl ? 'visa' : 'visa hidden';
+}
+
+fill($('start'), STARTS, 'v','t');
+goals();
+$('start').addEventListener('change', function(){goals();calc()});
+['goal','ac','pace','house','cit','cfi','retake'].forEach(function(id){
+  $(id).addEventListener('change', calc);
+});
+calc();
+</script>
+</body>
+</html>
