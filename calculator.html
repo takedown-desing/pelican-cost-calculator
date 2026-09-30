@@ -140,7 +140,7 @@ select:focus{outline:2px solid var(--gold);outline-offset:1px}
 
   <form class="card" id="f" onsubmit="return false">
     <h2>Your situation</h2>
-    <p class="lede">Шесть полей. Результат показывается сразу, без email и телефона.</p>
+    <p class="lede">Шесть полей. Программы во втором вопросе взяты из каталога один в один. Результат показывается сразу, без email и телефона.</p>
 
     <div class="field">
       <label for="start">1. Where you are starting from</label>
@@ -148,7 +148,8 @@ select:focus{outline:2px solid var(--gold);outline-offset:1px}
     </div>
 
     <div class="field">
-      <label for="goal">2. What you want to achieve</label>
+      <label for="goal">2. Which program
+        <span class="hint">Названия и цены как в каталоге programs-courses</span></label>
       <select id="goal"></select>
     </div>
 
@@ -186,12 +187,6 @@ select:focus{outline:2px solid var(--gold);outline-offset:1px}
         <option value="us">US citizen or permanent resident</option>
         <option value="intl">International student, F-1 visa</option>
       </select>
-    </div>
-
-    <div class="field" id="cfiWrap">
-      <label class="check"><input type="checkbox" id="cfi">
-        <span>Add the CFI certificate to build hours toward ATP
-          <span class="hint">$8,325, работа инструктором в США после CPL</span></span></label>
     </div>
 
     <div class="field">
@@ -259,7 +254,8 @@ try{var s=localStorage.getItem('pft-theme'); if(s)document.documentElement.setAt
    ------------------------------------------------------------------ */
 var PRICE = {
   ppp:        68310,   // Professional Pilot Program, zero to CPL, включает PPL+IR+CPL+MEL
-  pph:        75380,   // Professional Helicopter Program H
+  pph:        75380,   // Professional Helicopter Program H: PPL-H, IR-H, CPL-H, CFI-H, CFII-H
+  zero2cpl:   68310,   // From Zero to CPL (Custom Pathway): CPL + IR + MEL + CFI
   ppl152:     14155,
   ppl172:     15702,
   ir:         14653,
@@ -285,64 +281,82 @@ var PRICE = {
 /* Строки, по которым у школы ещё не запрошены подтверждённые цифры.
    Соответствуют разделу «какие данные нужны от школы» в описании. */
 var NEEDS = {
-  gearLo: 900, gearHi: 2400,   // гарнитура, книги, iPad, подписки
-  enroll: null                 // невозвратный enrollment fee: сумма на сайте не указана
+  gearLo: 900, gearHi: 2400    // гарнитура, планшет, подписки
 };
+PRICE.enroll = 515;            // невозвратный enrollment fee, подтверждён школой 30.09.2026
 
 var STARTS = [
-  {v:'zero',  t:'No experience, zero hours'},
-  {v:'ppl',   t:'I hold an FAA Private Pilot certificate'},
-  {v:'cpl',   t:'I hold an FAA Commercial Pilot certificate'},
-  {v:'pplh',  t:'I hold a Private Pilot certificate, helicopter'},
-  {v:'apl',   t:'I am a licensed airplane pilot, adding helicopter'},
+  {v:'zero',    t:'No experience, zero hours'},
+  {v:'ppl',     t:'I hold an FAA Private Pilot certificate, airplane'},
+  {v:'cpl',     t:'I hold an FAA Commercial Pilot certificate, airplane'},
+  {v:'pplh',    t:'I hold a Private Pilot certificate, helicopter'},
+  {v:'cplh',    t:'I hold a Commercial Pilot certificate, helicopter'},
   {v:'foreign', t:'I hold a foreign licence, ICAO or EASA'}
 ];
 
-/* Матрица: стартовая точка -> доступные цели.
-   steps: строки тарифа. wr: письменных экзаменов. ck: чекрайдов. mo: базовый срок в месяцах. */
+/* Матрица: стартовая точка -> программы из каталога /programs-courses/, названия и цены один в один.
+   steps: строки тарифа. wr: письменных экзаменов. ck: чекрайдов. mo: срок в месяцах с сайта,
+   где на сайте срока нет, стоит оценка и пометка est. */
 var PATHS = {
   zero: [
-    {v:'ppl', t:'Private Pilot certificate (PPL)', mo:[3,5], wr:1, ck:1,
-     steps:[{k:'ppl',n:'Private Pilot Certification'}]},
-    {v:'cpla', t:'Commercial Pilot, airplane, from zero', mo:[14,18], wr:3, ck:4,
-     steps:[{k:'ppp',n:'Professional Pilot Program, bundled'}],
-     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Simulator time','Aircraft for the checkride','PPL, Instrument, Commercial and Multi-Engine'],
+    {v:'ppl',  t:'Airplane Private Pilot Certification (PPL), $14,155 (C152) / $15,702 (C172)', mo:[3,5], wr:1, ck:1,
+     steps:[{k:'ppl',n:'Airplane Private Pilot Certification (PPL)'}]},
+    {v:'ppa',  t:'Professional Pilot Program (Airplane), $68,310', mo:[14,18], wr:3, ck:4,
+     steps:[{k:'ppp',n:'Professional Pilot Program (Airplane)'}],
+     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Simulator time','Aircraft for the checkride','PPL, IR, CPL and Multi-Engine'],
      note:'Bundled price. Оплата по этапам, stage-based payment plan.'},
-    {v:'cplh', t:'Commercial Pilot, helicopter, from zero', mo:[14,18], wr:3, ck:3,
+    {v:'z2c',  t:'From Zero to CPL (Custom Pathway), $68,310', mo:[15,15], wr:4, ck:5,
+     steps:[{k:'zero2cpl',n:'From Zero to CPL (Custom Pathway)'}],
+     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','CPL, IR, MEL and CFI'],
+     note:'Bundled price, CFI уже включён в программу.'},
+    {v:'pph',  t:'Professional Helicopter Program H, $75,380', mo:[18,24], wr:5, ck:5,
      steps:[{k:'pph',n:'Professional Helicopter Program H'}],
-     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','PPL-H, Instrument-H and Commercial-H'],
-     note:'FAA Part 141, одна из немногих вертолётных программ такого уровня в США.'}
+     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','PPL-H, IR-H, CPL-H, CFI-H and CFII-H'],
+     note:'FAA Part 141, полный вертолётный путь до инструктора.'},
+    {v:'pplh', t:'Helicopter Private Pilot Certification (PPL-H), $18,950', mo:[3,5], wr:1, ck:1, est:true,
+     steps:[{k:'pplh',n:'Helicopter Private Pilot Certification (PPL-H)'}]}
   ],
   ppl: [
-    {v:'ir', t:'Add an Instrument Rating', mo:[3,4], wr:1, ck:1,
-     steps:[{k:'ir',n:'Instrument Pilot Rating'}]},
-    {v:'cpla', t:'Commercial Pilot, airplane', mo:[9,12], wr:2, ck:2,
-     steps:[{k:'cpl',n:'Commercial Pilot Certification, includes Instrument'},
-            {k:'mel',n:'Multi-Engine Pilot Certification'}]}
-  ],
-  cpl: [
-    {v:'cfib', t:'Instructor bundle: CFI, CFII and MEI', mo:[4,7], wr:3, ck:3,
-     steps:[{k:'cfi',n:'Certified Flight Instructor'},
-            {k:'cfii',n:'CFII, Instrument Instructor'},
-            {k:'mei',n:'MEI, Multi-Engine Instructor'}],
-     note:'Путь к налёту часов до ATP через работу инструктором в США.'}
-  ],
-  pplh: [
-    {v:'cplh', t:'Commercial Pilot, helicopter', mo:[9,12], wr:2, ck:2,
-     steps:[{k:'irh',n:'Helicopter Instrument Rating'},
-            {k:'cplh',n:'Helicopter Commercial Pilot Licence'}]},
-    {v:'cfihb', t:'Helicopter instructor: CFI-H and CFII-H', mo:[3,5], wr:2, ck:2,
-     steps:[{k:'cfih',n:'Helicopter Certified Flight Instructor'},
-            {k:'cfiih',n:'Helicopter Instrument Instructor'}]}
-  ],
-  apl: [
-    {v:'addh', t:'Add a helicopter rating', mo:[3,5], wr:1, ck:1,
-     steps:[{k:'addH',n:'Helicopter Add-On Rating, from'}],
+    {v:'ir',   t:'Instrument Pilot Rating (IR), $14,653', mo:[3,4], wr:1, ck:1,
+     steps:[{k:'ir',n:'Instrument Pilot Rating (IR)'}]},
+    {v:'cpl',  t:'Commercial Pilot Certification (CPL), $58,782, includes IR', mo:[9,12], wr:2, ck:2,
+     steps:[{k:'cpl',n:'Commercial Pilot Certification (CPL), includes IR'}]},
+    {v:'mel',  t:'Multi-Engine Pilot Certification (MEL), $6,380', mo:[1,1], wr:0, ck:1,
+     steps:[{k:'mel',n:'Multi-Engine Pilot Certification (MEL)'}]},
+    {v:'addh', t:'Helicopter Add-On Rating, from $18,950', mo:[2,4], wr:1, ck:1, est:true,
+     steps:[{k:'addH',n:'Helicopter Add-On Rating'}],
      note:'Цена указана как «от», итог зависит от вашего налёта.'}
   ],
+  cpl: [
+    {v:'mel',  t:'Multi-Engine Pilot Certification (MEL), $6,380', mo:[1,1], wr:0, ck:1,
+     steps:[{k:'mel',n:'Multi-Engine Pilot Certification (MEL)'}]},
+    {v:'cfi',  t:'Certified Flight Instructor (CFI), $8,325', mo:[1,2], wr:2, ck:1, est:true,
+     steps:[{k:'cfi',n:'Certified Flight Instructor (CFI)'}],
+     note:'Путь к налёту часов до ATP через работу инструктором в США.'},
+    {v:'cfii', t:'CFII (Instrument Instructor), $32,298', mo:[1,2], wr:1, ck:1, est:true,
+     steps:[{k:'cfii',n:'CFII (Instrument Instructor)'}]},
+    {v:'mei',  t:'MEI (Multi-Engine Instructor), $6,379 (Part 61)', mo:[1,1], wr:0, ck:1, est:true,
+     steps:[{k:'mei',n:'MEI (Multi-Engine Instructor)'}]},
+    {v:'addh', t:'Helicopter Add-On Rating, from $18,950', mo:[2,4], wr:1, ck:1, est:true,
+     steps:[{k:'addH',n:'Helicopter Add-On Rating'}],
+     note:'Цена указана как «от», итог зависит от вашего налёта.'}
+  ],
+  pplh: [
+    {v:'irh',  t:'Helicopter Instrument Rating (IR-H), $16,300', mo:[2,4], wr:1, ck:1, est:true,
+     steps:[{k:'irh',n:'Helicopter Instrument Rating (IR-H)'}]},
+    {v:'cplh', t:'Helicopter Commercial Pilot License (CPL-H), $26,359', mo:[4,7], wr:1, ck:1, est:true,
+     steps:[{k:'cplh',n:'Helicopter Commercial Pilot License (CPL-H)'}]}
+  ],
+  cplh: [
+    {v:'cfih', t:'Helicopter Certified Flight Instructor (CFI-H), $9,233', mo:[1,2], wr:2, ck:1, est:true,
+     steps:[{k:'cfih',n:'Helicopter Certified Flight Instructor (CFI-H)'}]},
+    {v:'cfiih',t:'Helicopter Instrument Instructor (CFII-H), $5,956', mo:[1,2], wr:1, ck:1, est:true,
+     steps:[{k:'cfiih',n:'Helicopter Instrument Instructor (CFII-H)'}],
+     note:'Требуется уже полученный CFI-H.'}
+  ],
   foreign: [
-    {v:'conv', t:'Convert my licence to FAA', mo:[2,6], wr:1, ck:1,
-     steps:[{k:'conv',n:'ICAO or EASA conversion to FAA'}],
+    {v:'conv', t:'ICAO and EASA License Conversion to FAA, $8,000 - $42,000', mo:[2,6], wr:1, ck:1,
+     steps:[{k:'conv',n:'ICAO and EASA License Conversion to FAA'}],
      note:'Диапазон широкий, потому что зависит от того, какой у вас документ на входе.'}
   ]
 };
@@ -350,7 +364,7 @@ var PATHS = {
 var PACE = {ft:{m:1.0,t:'full time'}, pt:{m:1.4,t:'3 to 4 days a week'}, we:{m:1.9,t:'about 2 days a week'}};
 
 var DEFAULT_INCL = ['Ground school','Dual instruction','Solo flight time','Fuel and maintenance','Aircraft for the checkride'];
-var DEFAULT_EXCL = ['FAA written exam fees','DPE checkride fees','FAA medical certificate','Headset, books and supplies','Housing and living costs','Transport and personal spending'];
+var DEFAULT_EXCL = ['FAA written exam fees','DPE checkride fees','FAA medical certificate','Headset and supplies','Housing and living costs','Transport and personal spending'];
 
 var $ = function(id){return document.getElementById(id)};
 var money = function(n){return '$'+Math.round(n).toLocaleString('en-US')};
@@ -381,17 +395,12 @@ function calc(){
   var pace=PACE[$('pace').value];
   var house=parseInt($('house').value,10);
   var intl=$('cit').value==='intl';
-  var wantCfi=$('cfi').checked;
   var retake=$('retake').checked;
 
   /* PPL-самолёт есть только там, где в шагах есть ppl */
   var hasPpl = path.steps.some(function(s){return s.k==='ppl'});
   $('acWrap').className = hasPpl ? 'field' : 'field hidden';
 
-  /* CFI добора часов предлагаем только тем, кто идёт к CPL самолёта и ещё не в инструкторском пути */
-  var cfiOffer = (gv==='cpla');
-  $('cfiWrap').className = cfiOffer ? 'field' : 'field hidden';
-  if(!cfiOffer) wantCfi=false;
 
   /* ---- 1. Тариф, фиксированная часть ---- */
   var tLo=0, tHi=0, names=[];
@@ -403,8 +412,6 @@ function calc(){
     tLo+=lo; tHi+=hi; names.push(s.n);
   });
   var wr=path.wr, ck=path.ck, moLo=path.mo[0], moHi=path.mo[1];
-  if(wantCfi){ tLo+=PRICE.cfi; tHi+=PRICE.cfi; names.push('Certified Flight Instructor');
-               wr+=1; ck+=1; moLo+=2; moHi+=3; }
   if(retake){ ck+=1; moLo+=1; moHi+=1; }
 
   /* ---- 2. Срок ---- */
@@ -421,13 +428,13 @@ function calc(){
   /* ---- 5. Снаряжение, данных от школы пока нет ---- */
   var gLo=NEEDS.gearLo, gHi=NEEDS.gearHi;
 
-  var lo=tLo+fLo+lLo+gLo, hi=tHi+fHi+lHi+gHi;
+  var lo=tLo+PRICE.enroll+fLo+lLo+gLo, hi=tHi+PRICE.enroll+fHi+lHi+gHi;
 
   /* ---- вывод ---- */
   $('big').textContent = (lo===hi) ? money(lo) : money(lo)+' to '+money(hi);
   $('prog').textContent = names.join(' + ');
   $('tl').textContent = mLo+' to '+mHi+' months at '+pace.t+
-      (retake?', including one repeated checkride':'');
+      (retake?', including one repeated checkride':'')+(path.est?' (срок оценочный, на сайте не указан)':'');
 
   var rows=[
     ['Tuition', names.length+(names.length>1?' programs from the price list':' program from the price list'),
@@ -437,10 +444,10 @@ function calc(){
     ['Living costs', (house===0?'Own accommodation':money(house)+' a month')+
       (intl?' plus $75 a month health insurance':'')+', over '+mLo+' to '+mHi+' months',
       (lLo===0&&lHi===0)?'$0':money(lLo)+' to '+money(lHi), 'e','estimated'],
-    ['Gear and books', 'Headset, books, tablet, subscriptions. Точных цифр от школы пока нет, здесь рыночный ориентир',
+    ['Gear and supplies', 'Headset, tablet, subscriptions. Точных цифр от школы пока нет, здесь рыночный ориентир',
       money(gLo)+' to '+money(gHi), 'q','нужны данные'],
-    ['Enrollment fee', 'На сайте сбор назван, но сумма не указана. В расчёт не включён',
-      'не указана', 'q','нужны данные']
+    ['Enrollment fee', 'Невозвратный сбор при зачислении, подтверждён школой',
+      money(PRICE.enroll), 'f','fixed']
   ];
   $('rows').innerHTML = rows.map(function(r){
     return '<div class="row"><div class="l">'+r[0]+'<span class="tag '+r[3]+'">'+r[4]+'</span>'+
@@ -456,7 +463,7 @@ function calc(){
 fill($('start'), STARTS, 'v','t');
 goals();
 $('start').addEventListener('change', function(){goals();calc()});
-['goal','ac','pace','house','cit','cfi','retake'].forEach(function(id){
+['goal','ac','pace','house','cit','retake'].forEach(function(id){
   $(id).addEventListener('change', calc);
 });
 calc();
