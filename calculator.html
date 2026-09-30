@@ -125,15 +125,12 @@ select:focus{outline:2px solid var(--gold);outline-offset:1px}
     <div>
       <p class="brand">Pelican Flight Training · прототип</p>
       <h1>Training Cost Calculator</h1>
-      <p>Рабочий прототип варианта B. Считает по реальному прайсу с сайта. Это демонстрация механики, а не готовый к публикации блок. <a href="index.html">Вернуться к описанию</a></p>
+      <p>Рабочий прототип. Считает по реальному прайсу с сайта. <a href="index.html">Вернуться к описанию</a></p>
     </div>
     <button class="tbtn" onclick="tt()">Сменить тему</button>
   </div>
 </header>
 
-<div class="demo-note"><div class="wrap">
-  <b>Как читать прототип.</b> Цены программ взяты с /programs-courses/ и помечены <span class="tag f">fixed</span>. Оценочные строки помечены <span class="tag e">estimated</span>. Строки, для которых у нас пока нет подтверждённых данных от школы, помечены <span class="tag q">нужны данные</span>: это ровно тот список, который в описании назван обязательным к получению от школы.
-</div></div>
 
 <div class="wrap">
 <div class="grid">
@@ -163,8 +160,16 @@ select:focus{outline:2px solid var(--gold);outline-offset:1px}
     </div>
 
     <div class="field">
-      <label for="pace">4. Training pace
-        <span class="hint">Определяет срок, а срок определяет расходы на жизнь</span></label>
+      <label for="cit">4. Your status</label>
+      <select id="cit">
+        <option value="us">US citizen or permanent resident</option>
+        <option value="intl">International student, F-1 visa</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="pace">5. Training pace
+        <span class="hint">Определяет срок, а срок определяет расходы на жизнь. Для F-1 доступен только полный день</span></label>
       <select id="pace">
         <option value="ft">Full time, 5 to 6 days a week</option>
         <option value="pt">Part time, 3 to 4 days a week</option>
@@ -173,19 +178,11 @@ select:focus{outline:2px solid var(--gold);outline-offset:1px}
     </div>
 
     <div class="field">
-      <label for="house">5. Housing during training</label>
+      <label for="house">6. Housing during training</label>
       <select id="house">
         <option value="750">Shared room, $750 a month</option>
         <option value="1500">Private room, $1,500 a month</option>
         <option value="0">I have my own place, $0</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label for="cit">6. Your status</label>
-      <select id="cit">
-        <option value="us">US citizen or permanent resident</option>
-        <option value="intl">International student, F-1 visa</option>
       </select>
     </div>
 
@@ -208,7 +205,6 @@ select:focus{outline:2px solid var(--gold);outline-offset:1px}
 
     <div class="disc">
       <b>This is an estimate, not a quote.</b> The tuition line is the published program price and is fixed by your enrollment contract. Every other line is an estimate. Your actual total depends on your pace, the weather, how many hours you need before each checkride, and your personal spending.
-      <br><br>Формулировку дисклеймера на сайте согласовывает тот, кто отвечает за enrollment contract.
     </div>
 
     <div class="inc">
@@ -256,6 +252,11 @@ var PRICE = {
   ppp:        68310,   // Professional Pilot Program, zero to CPL, включает PPL+IR+CPL+MEL
   pph:        75380,   // Professional Helicopter Program H: PPL-H, IR-H, CPL-H, CFI-H, CFII-H
   zero2cpl:   68310,   // From Zero to CPL (Custom Pathway): CPL + IR + MEL + CFI
+  z2cplSel:   58782,   // (ZERO) PPL - CPL SEL
+  z2cplMel:   63967,   // (ZERO) PPL - CPL SEL + MEL
+  cfiPack:    32298,   // CPL holders: CFI + CFII + CFI MEL, полный прайс (со скидкой 26,000)
+  cfiPackSel: 36753,   // тот же пакет + Single Engine Add-On (со скидкой 29,500)
+  cfiPackMel: 37735,   // тот же пакет + Multi Engine Add-On (со скидкой 30,115)
   ppl152:     14155,
   ppl172:     15702,
   ir:         14653,
@@ -305,6 +306,12 @@ var PATHS = {
      steps:[{k:'ppp',n:'Professional Pilot Program (Airplane)'}],
      incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Simulator time','Aircraft for the checkride','PPL, IR, CPL and Multi-Engine'],
      note:'Bundled price. Оплата по этапам, stage-based payment plan.'},
+    {v:'z2sel', t:'(ZERO) PPL - CPL SEL, $58,782', mo:[12,16], wr:3, ck:3, est:true,
+     steps:[{k:'z2cplSel',n:'(ZERO) PPL - CPL SEL'}],
+     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','PPL, IR and CPL single engine']},
+    {v:'z2mel', t:'(ZERO) PPL - CPL SEL + MEL, $63,967', mo:[13,17], wr:3, ck:4, est:true,
+     steps:[{k:'z2cplMel',n:'(ZERO) PPL - CPL SEL + MEL'}],
+     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','PPL, IR, CPL single engine and Multi-Engine']},
     {v:'z2c',  t:'From Zero to CPL (Custom Pathway), $68,310', mo:[15,15], wr:4, ck:5,
      steps:[{k:'zero2cpl',n:'From Zero to CPL (Custom Pathway)'}],
      incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','CPL, IR, MEL and CFI'],
@@ -319,8 +326,6 @@ var PATHS = {
   ppl: [
     {v:'ir',   t:'Instrument Pilot Rating (IR), $14,653', mo:[3,4], wr:1, ck:1,
      steps:[{k:'ir',n:'Instrument Pilot Rating (IR)'}]},
-    {v:'cpl',  t:'Commercial Pilot Certification (CPL), $58,782, includes IR', mo:[9,12], wr:2, ck:2,
-     steps:[{k:'cpl',n:'Commercial Pilot Certification (CPL), includes IR'}]},
     {v:'mel',  t:'Multi-Engine Pilot Certification (MEL), $6,380', mo:[1,1], wr:0, ck:1,
      steps:[{k:'mel',n:'Multi-Engine Pilot Certification (MEL)'}]},
     {v:'addh', t:'Helicopter Add-On Rating, from $18,950', mo:[2,4], wr:1, ck:1, est:true,
@@ -328,6 +333,18 @@ var PATHS = {
      note:'Цена указана как «от», итог зависит от вашего налёта.'}
   ],
   cpl: [
+    {v:'cfip', t:'CFI + CFII + CFI MEL package, $32,298', mo:[3,5], wr:3, ck:3, est:true,
+     steps:[{k:'cfiPack',n:'Professional Pilot Program (Airplane): CFI / CFII / CFI MEL'}],
+     incl:['Ground school','Pre- and post-flight briefings','ALSIM ALX simulator time','Dual instruction, Cessna 172 and Complex SEL','Piper Seminole for CFI MEL','Books and supplies','Renters insurance, first 12 months','Aircraft for FAA exams'],
+     note:'For CPL holders with instrument rating. School quotes a discounted price of $26,000.'},
+    {v:'cfips', t:'CFI + CFII + CFI MEL package + Single Engine Add-On, $36,753', mo:[4,6], wr:3, ck:4, est:true,
+     steps:[{k:'cfiPackSel',n:'CFI / CFII / CFI MEL + Single Engine Add-On'}],
+     incl:['Ground school','Pre- and post-flight briefings','ALSIM ALX simulator time','Dual instruction, Cessna 172 and Complex SEL','Piper Seminole for CFI MEL','Books and supplies','Renters insurance, first 12 months','Aircraft for FAA exams'],
+     note:'For CPL holders who need a single engine rating added. Discounted price $29,500.'},
+    {v:'cfipm', t:'CFI + CFII + CFI MEL package + Multi Engine Add-On, $37,735', mo:[4,6], wr:3, ck:4, est:true,
+     steps:[{k:'cfiPackMel',n:'CFI / CFII / CFI MEL + Multi Engine Add-On'}],
+     incl:['Ground school','Pre- and post-flight briefings','ALSIM ALX simulator time','Dual instruction, Cessna 172 and Complex SEL','Piper Seminole for MEL and CFI MEL','Books and supplies','Renters insurance, first 12 months','Aircraft for FAA exams'],
+     note:'For CPL holders who need a multi engine rating added. Discounted price $30,115.'},
     {v:'mel',  t:'Multi-Engine Pilot Certification (MEL), $6,380', mo:[1,1], wr:0, ck:1,
      steps:[{k:'mel',n:'Multi-Engine Pilot Certification (MEL)'}]},
     {v:'cfi',  t:'Certified Flight Instructor (CFI), $8,325', mo:[1,2], wr:2, ck:1, est:true,
@@ -392,9 +409,15 @@ function calc(){
   PATHS[st].forEach(function(p){ if(p.v===gv) path=p; });
   if(!path) path=PATHS[st][0];
 
-  var pace=PACE[$('pace').value];
-  var house=parseInt($('house').value,10);
+  /* международным студентам по F-1 доступен только полный день */
   var intl=$('cit').value==='intl';
+  var paceSel=$('pace');
+  for(var pi=0;pi<paceSel.options.length;pi++){
+    var o=paceSel.options[pi]; o.disabled = intl && o.value!=='ft'; o.hidden = o.disabled;
+  }
+  if(intl) paceSel.value='ft';
+  var pace=PACE[paceSel.value];
+  var house=parseInt($('house').value,10);
   var retake=$('retake').checked;
 
   /* PPL-самолёт есть только там, где в шагах есть ppl */
@@ -450,7 +473,7 @@ function calc(){
       money(PRICE.enroll), 'f','fixed']
   ];
   $('rows').innerHTML = rows.map(function(r){
-    return '<div class="row"><div class="l">'+r[0]+'<span class="tag '+r[3]+'">'+r[4]+'</span>'+
+    return '<div class="row"><div class="l">'+r[0]+
            '<small>'+r[1]+'</small></div><div class="v">'+r[2]+'</div></div>';
   }).join('') + (path.note?'<div class="row"><div class="l"><small>'+path.note+'</small></div></div>':'');
 
@@ -463,7 +486,7 @@ function calc(){
 fill($('start'), STARTS, 'v','t');
 goals();
 $('start').addEventListener('change', function(){goals();calc()});
-['goal','ac','pace','house','cit','retake'].forEach(function(id){
+['goal','ac','cit','pace','house','retake'].forEach(function(id){
   $(id).addEventListener('change', calc);
 });
 calc();
