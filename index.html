@@ -10,29 +10,22 @@
 <style>
 :root{
   --dark:#1C1C1C; --gold:#EBA044; --gold-l:#FBCF4D; --gold-dk:#b5761f;
-  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-card:#ffffff;
-  --text:#26292e; --muted:#6b7280; --line:#e5e7eb; --line-soft:#f0f1f3;
-  --code-bg:#f3f4f6; --accent-bg:#fdf7ea;
+  --bg:#ffffff; --bg-soft:#f6f7f9; --text:#26292e; --muted:#6b7280;
+  --line:#e5e7eb; --line-soft:#f0f1f3; --code-bg:#f3f4f6; --accent-bg:#fdf7ea;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#15171a; --bg-soft:#1b1e22; --bg-card:#1b1e22;
-    --text:#e6e8ea; --muted:#9aa1ab; --line:#2b2f35; --line-soft:#23262b;
-    --code-bg:#22262b; --accent-bg:#2a2218;
-  }
-}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15171a; --bg-soft:#1b1e22; --text:#e6e8ea; --muted:#9aa1ab;
+  --line:#2b2f35; --line-soft:#23262b; --code-bg:#22262b; --accent-bg:#2a2218;
+}}
 :root[data-theme="dark"]{
-  --bg:#15171a; --bg-soft:#1b1e22; --bg-card:#1b1e22;
-  --text:#e6e8ea; --muted:#9aa1ab; --line:#2b2f35; --line-soft:#23262b;
-  --code-bg:#22262b; --accent-bg:#2a2218;
+  --bg:#15171a; --bg-soft:#1b1e22; --text:#e6e8ea; --muted:#9aa1ab;
+  --line:#2b2f35; --line-soft:#23262b; --code-bg:#22262b; --accent-bg:#2a2218;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--text);
   font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   -webkit-text-size-adjust:100%}
-
-/* шапка */
 .masthead{background:var(--dark);color:#fff;padding:26px 0 22px;border-bottom:3px solid var(--gold)}
 .masthead .wrap{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}
 .brand{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:0 0 6px}
@@ -44,23 +37,17 @@ body{margin:0;background:var(--bg);color:var(--text);
 .themebtn{background:transparent;border:1px solid #3a3d42;color:#cfd2d6;border-radius:8px;
   padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;flex-shrink:0}
 .themebtn:hover{border-color:var(--gold);color:var(--gold-l)}
-
 .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
 .layout{display:grid;grid-template-columns:256px minmax(0,1fr);gap:44px;align-items:start;padding:34px 0 70px}
-
-/* оглавление */
 .toc{position:sticky;top:22px;max-height:calc(100vh - 44px);overflow-y:auto;
   font-size:13.5px;border-left:2px solid var(--line);padding-left:16px}
-.toc .tt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
-  font-weight:700;margin-bottom:10px}
+.toc .tt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px}
 .toc ul{list-style:none;margin:0;padding:0}
 .toc li{margin:3px 0}
 .toc a{color:var(--muted);text-decoration:none;display:block;padding:3px 0;line-height:1.4}
 .toc a:hover{color:var(--gold-dk)}
 .toc .lvl3{padding-left:13px;font-size:12.5px}
 .toc a.active{color:var(--gold-dk);font-weight:600}
-
-/* контент */
 .doc{min-width:0}
 .doc h1{font-size:27px;line-height:1.25;margin:0 0 18px;font-weight:700}
 .doc h2{font-size:21px;line-height:1.3;margin:42px 0 14px;padding-bottom:9px;
@@ -71,7 +58,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .doc p{margin:0 0 13px}
 .doc ul,.doc ol{margin:0 0 14px;padding-left:24px}
 .doc li{margin:5px 0}
-.doc li>ul,.doc li>ol{margin:5px 0 3px}
 .doc a{color:var(--gold-dk);text-decoration:underline;text-underline-offset:2px}
 .doc strong{font-weight:700;color:var(--text)}
 .doc hr{border:0;border-top:1px solid var(--line);margin:34px 0}
@@ -80,38 +66,26 @@ body{margin:0;background:var(--bg);color:var(--text);
 .doc blockquote p:last-child{margin-bottom:0}
 .doc code{background:var(--code-bg);padding:2px 6px;border-radius:4px;
   font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-word}
-.doc pre{background:var(--dark);color:#e8e8e8;padding:15px 17px;border-radius:9px;
-  overflow-x:auto;margin:0 0 16px}
+.doc pre{background:var(--dark);color:#e8e8e8;padding:15px 17px;border-radius:9px;overflow-x:auto;margin:0 0 16px}
 .doc pre code{background:transparent;color:inherit;padding:0;font-size:12.5px;line-height:1.6}
-
-/* таблицы */
-.tablewrap{overflow-x:auto;margin:0 0 18px;border:1px solid var(--line);border-radius:9px;
-  -webkit-overflow-scrolling:touch}
+.tablewrap{overflow-x:auto;margin:0 0 18px;border:1px solid var(--line);border-radius:9px;-webkit-overflow-scrolling:touch}
 .doc table{border-collapse:collapse;width:100%;font-size:14px;min-width:460px}
-.doc thead th{background:var(--dark);color:#fff;text-align:left;padding:10px 13px;
-  font-weight:600;font-size:13px;white-space:nowrap}
+.doc thead th{background:var(--dark);color:#fff;text-align:left;padding:10px 13px;font-weight:600;font-size:13px}
 .doc tbody td{padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top}
 .doc tbody tr:last-child td{border-bottom:0}
 .doc tbody tr:nth-child(even) td{background:var(--bg-soft)}
-
 .footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--muted);font-size:13px}
 .footer a{color:var(--gold-dk)}
 .backtop{display:inline-block;margin-top:9px;font-size:13px}
-
 @media (max-width:900px){
   .layout{grid-template-columns:1fr;gap:0;padding:22px 0 50px}
-  .toc{position:static;max-height:none;border-left:0;border-bottom:1px solid var(--line);
-    padding:0 0 18px;margin-bottom:22px}
+  .toc{position:static;max-height:none;border-left:0;border-bottom:1px solid var(--line);padding:0 0 18px;margin-bottom:22px}
   .toc ul{columns:2;column-gap:22px}
   .toc .lvl3{display:none}
   .masthead h1{font-size:21px}
   .wrap{padding:0 16px}
 }
-@media (max-width:560px){
-  .toc ul{columns:1}
-  body{font-size:15.5px}
-  .doc h2{font-size:19px}
-}
+@media (max-width:560px){ .toc ul{columns:1} body{font-size:15.5px} .doc h2{font-size:19px} }
 @media print{
   .masthead{background:#fff;color:#000;border-bottom:2px solid #000}
   .masthead h1,.brand{color:#000}
@@ -123,19 +97,17 @@ body{margin:0;background:var(--bg);color:var(--text);
 </style>
 </head>
 <body>
-
 <header class="masthead">
   <div class="wrap">
     <div>
       <p class="brand">Pelican Flight Training · SEO</p>
       <h1>Калькулятор стоимости обучения</h1>
       <p class="sub">Зачем он нужен, куда его ставить, почему выбран этот вариант, и что нужно от школы. С рабочим прототипом.</p>
-      <div class="pills"><span class="pill">Рабочий прототип</span><span class="pill">Вариант B</span><span class="pill">Без email до результата</span></div>
+      <div class="pills"><span class="pill">Рабочий прототип</span><span class="pill">Вариант B</span><span class="pill">Программы из каталога</span></div>
     </div>
     <button class="themebtn" onclick="tt()">Сменить тему</button>
   </div>
 </header>
-
 <div class="wrap">
   <div class="layout">
     <nav class="toc"><div class="tt">Содержание</div><ul><li><a href="#коротко">Коротко</a></li><li><a href="#1-зачем-он-нужен-и-куда-его-ставить">1. Зачем он нужен и куда его ставить</a></li><li class="lvl3"><a href="#куда-именно-ставить">Куда именно ставить</a></li><li><a href="#2-как-он-устроен-для-пользователя">2. Как он устроен для пользователя</a></li><li><a href="#3-три-варианта-механики">3. Три варианта механики</a></li><li class="lvl3"><a href="#вариант-a-статический-конфигуратор-программы">Вариант A. Статический конфигуратор программы</a></li><li class="lvl3"><a href="#вариант-b-калькулятор-полной-стоимости-с-диапазоном-и-разбивкой">Вариант B. Калькулятор полной стоимости с диапазоном и разбивкой</a></li><li class="lvl3"><a href="#вариант-c-персональный-план-с-сохранением-и-передачей-в-admissions">Вариант C. Персональный план с сохранением и передачей в admissions</a></li><li><a href="#4-сводная-таблица">4. Сводная таблица</a></li><li><a href="#5-почему-вариант-b">5. Почему вариант B</a></li><li><a href="#6-какие-данные-нужны-от-школы-чтобы-калькулятор-был-честным">6. Какие данные нужны от школы, чтобы калькулятор был честным</a></li><li><a href="#7-что-у-конкурентов">7. Что у конкурентов</a></li><li class="lvl3"><a href="#главный-вывод">Главный вывод</a></li><li class="lvl3"><a href="#кто-калькулятор-всё-таки-сделал-все-за-пределами-флориды">Кто калькулятор всё-таки сделал, все за пределами Флориды</a></li><li class="lvl3"><a href="#как-показывают-цены-школы-без-калькулятора">Как показывают цены школы без калькулятора</a></li><li class="lvl3"><a href="#сторонние-калькуляторы-которые-занимают-выдачу">Сторонние калькуляторы, которые занимают выдачу</a></li><li class="lvl3"><a href="#девять-наблюдений-которые-определяют-нашу-постановку-задачи">Девять наблюдений, которые определяют нашу постановку задачи</a></li><li><a href="#8-рабочий-прототип">8. Рабочий прототип</a></li></ul></nav>
@@ -227,7 +199,8 @@ body{margin:0;background:var(--bg);color:var(--text);
 <hr />
 <h2 id="2-как-он-устроен-для-пользователя">2. Как он устроен для пользователя</h2>
 <p>Шесть полей и результат сразу, без email и телефона.</p>
-<p><strong>Что спрашиваем.</strong> С чего человек начинает (ноль часов, есть PPL, есть CPL, иностранная лицензия), к чему хочет прийти, на каком самолёте проходить PPL, в каком темпе учиться, где жить во время обучения и какой у него статус, гражданин США или международный студент. Два необязательных переключателя: добавить ли CFI для набора часов и показать ли сценарий с одной пересдачей чекрайда.</p>
+<p><strong>Что спрашиваем.</strong> С чего человек начинает (ноль часов, есть PPL, есть CPL, есть вертолётная лицензия, иностранная лицензия), какую программу хочет пройти, на каком самолёте проходить PPL, в каком темпе учиться, где жить во время обучения и какой у него статус, гражданин США или международный студент. Один необязательный переключатель: показать ли сценарий с одной пересдачей чекрайда.</p>
+<p><strong>Второй вопрос повторяет каталог.</strong> Список программ берётся из таблицы на <code>/programs-courses/</code> с теми же названиями и ценами, а стартовая точка только фильтрует его: с нуля видны PPL и три bundled-программы, с PPL видны IR, CPL, MEL и вертолётный add-on, и так далее. Отдельной галочки «добавить CFI» нет: CFI либо уже входит в программу (From Zero to CPL, Professional Helicopter Program H), либо выбирается как отдельная программа для тех, у кого есть CPL.</p>
 <p><strong>Что показываем.</strong> Крупно итог, всегда диапазоном, никогда одной цифрой. Под ним разбивка на четыре строки: тариф программы, сборы FAA и экзаменатора, расходы на жизнь за срок обучения, снаряжение и книги. Срок в месяцах при выбранном темпе. Что входит в тариф и что нет. Дисклеймер прямо под результатом, а не мелким шрифтом внизу. Две кнопки: получить письменный расчёт и подать заявку.</p>
 <p><strong>Главная механика: граница между обещанием и оценкой видна глазами.</strong> Строка тарифа помечена как fixed и берётся из опубликованного прайса. Остальные строки помечены как estimated. Человек сам видит, за что отвечает школа, а что зависит от него. Это снимает основной риск любого калькулятора: «мне обещали столько-то».</p>
 <p><strong>Два правила, которые диктует рынок.</strong> Никакого gate: результат показываем сразу, форма контакта стоит ниже. И считаем от реальных часов, а не от минимумов FAA, если школа даст свою статистику. Ни один из проверенных инструментов конкурентов этого не делает, и это единственное место, где калькулятор Pelican может быть честнее всех в категории.</p>
@@ -400,7 +373,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 <ol>
 <li><strong>Актуальный прайс на 2026 в одном файле.</strong> Сейчас цены разбросаны по <code>/programs-courses/</code>, <code>/from-zero-to-cpl</code>, <code>/u.s.-students</code> и отдельным страницам программ. Нужен один источник правды с датой последнего обновления и с отметкой, до какого числа цены действуют.</li>
 <li><strong>Что именно входит в тариф каждой программы, построчно.</strong> Формулировка на сайте (наземка, dual, solo, топливо, обслуживание, тренажёр, самолёт на чекрайд) хорошая, но нужна её официальная версия от школы, желательно та, что в enrollment contract.</li>
-<li><strong>Размер невозвратного enrollment fee.</strong> На <code>/admissions</code> он назван, но сумма не указана. Для честного расчёта она нужна.</li>
+<li><strong>Размер невозвратного enrollment fee.</strong> Получен: $515. Входит в расчёт отдельной строкой с меткой fixed.</li>
 <li><strong>Правила пересчёта при перездаче чекрайда.</strong> Что происходит с деньгами, если студент не сдаёт с первого раза: доплата по часам, фиксированная сумма, входит в тариф. Это самая частая причина расхождения ожидания и факта.</li>
 <li><strong>Условия stage-based payment plan.</strong> Разбивка $68,310 по этапам, сроки внесения, есть ли рассрочка, есть ли проценты. Нужно для варианта C и полезно для варианта B.</li>
 <li><strong>Реальная статистика сроков.</strong> Сколько в среднем занимает каждый этап у студента при полном дне и при 3 до 4 днях в неделю, по факту за последний год. Сайт декларирует 14 до 18 месяцев, но калькулятор считает расходы на жизнь именно от срока, и здесь ошибка на два месяца это ошибка на $3,000.</li>
@@ -641,24 +614,18 @@ body{margin:0;background:var(--bg);color:var(--text);
     <br><a class="backtop" href="#">Наверх</a>
   </div>
 </div>
-
 <script>
 function tt(){
-  var r=document.documentElement;
-  var cur=r.getAttribute('data-theme');
+  var r=document.documentElement, cur=r.getAttribute('data-theme');
   if(!cur){cur=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
   var next=cur==='dark'?'light':'dark';
   r.setAttribute('data-theme',next);
   try{localStorage.setItem('pft-theme',next);}catch(e){}
 }
 try{var s=localStorage.getItem('pft-theme'); if(s)document.documentElement.setAttribute('data-theme',s);}catch(e){}
-
-/* подсветка активного раздела в оглавлении */
 var heads=[].slice.call(document.querySelectorAll('.doc h2[id], .doc h3[id]'));
 var links={};
-[].forEach.call(document.querySelectorAll('.toc a'),function(a){
-  links[a.getAttribute('href').slice(1)]=a;
-});
+[].forEach.call(document.querySelectorAll('.toc a'),function(a){links[a.getAttribute('href').slice(1)]=a;});
 function onScroll(){
   var y=window.scrollY+90, cur=null;
   for(var i=0;i<heads.length;i++){ if(heads[i].offsetTop<=y) cur=heads[i].id; }
