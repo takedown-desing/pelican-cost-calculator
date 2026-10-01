@@ -251,7 +251,7 @@ try{var s=localStorage.getItem('pft-theme'); if(s)document.documentElement.setAt
 var PRICE = {
   ppp:        68310,   // Professional Pilot Program, zero to CPL, включает PPL+IR+CPL+MEL
   pph:        75380,   // Professional Helicopter Program H: PPL-H, IR-H, CPL-H, CFI-H, CFII-H
-  zero2cpl:   68310,   // From Zero to CPL (Custom Pathway): CPL + IR + MEL + CFI
+  zero2cpl:   68310,   // From Zero to CPL (Custom Pathway): не показывается, заменена двумя (ZERO) ниже
   z2cplSel:   58782,   // (ZERO) PPL - CPL SEL
   z2cplMel:   63967,   // (ZERO) PPL - CPL SEL + MEL
   cfiPack:    32298,   // CPL holders: CFI + CFII + CFI MEL, полный прайс (со скидкой 26,000)
@@ -312,16 +312,24 @@ var PATHS = {
     {v:'z2mel', t:'(ZERO) PPL - CPL SEL + MEL, $63,967', mo:[13,17], wr:3, ck:4, est:true,
      steps:[{k:'z2cplMel',n:'(ZERO) PPL - CPL SEL + MEL'}],
      incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','PPL, IR, CPL single engine and Multi-Engine']},
-    {v:'z2c',  t:'From Zero to CPL (Custom Pathway), $68,310', mo:[15,15], wr:4, ck:5,
-     steps:[{k:'zero2cpl',n:'From Zero to CPL (Custom Pathway)'}],
-     incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','CPL, IR, MEL and CFI'],
-     note:'Bundled price, CFI уже включён в программу.'},
     {v:'pph',  t:'Professional Helicopter Program H, $75,380', mo:[18,24], wr:5, ck:5,
      steps:[{k:'pph',n:'Professional Helicopter Program H'}],
      incl:['Ground school','Dual and solo flight time','Fuel and maintenance','Aircraft for the checkride','PPL-H, IR-H, CPL-H, CFI-H and CFII-H'],
      note:'FAA Part 141, полный вертолётный путь до инструктора.'},
     {v:'pplh', t:'Helicopter Private Pilot Certification (PPL-H), $18,950', mo:[3,5], wr:1, ck:1, est:true,
-     steps:[{k:'pplh',n:'Helicopter Private Pilot Certification (PPL-H)'}]}
+     steps:[{k:'pplh',n:'Helicopter Private Pilot Certification (PPL-H)'}]},
+    {v:'cfip', t:'CFI + CFII + CFI MEL package, $32,298', mo:[3,5], wr:3, ck:3, est:true,
+     steps:[{k:'cfiPack',n:'Professional Pilot Program (Airplane): CFI / CFII / CFI MEL'}],
+     incl:['Ground school','Pre- and post-flight briefings','ALSIM ALX simulator time','Dual instruction, Cessna 172 and Complex SEL','Piper Seminole for CFI MEL','Books and supplies','Renters insurance, first 12 months','Aircraft for FAA exams'],
+     note:'For CPL holders with instrument rating. School quotes a discounted price of $26,000.'},
+    {v:'cfips', t:'CFI + CFII + CFI MEL package + Single Engine Add-On, $36,753', mo:[4,6], wr:3, ck:4, est:true,
+     steps:[{k:'cfiPackSel',n:'CFI / CFII / CFI MEL + Single Engine Add-On'}],
+     incl:['Ground school','Pre- and post-flight briefings','ALSIM ALX simulator time','Dual instruction, Cessna 172 and Complex SEL','Piper Seminole for CFI MEL','Books and supplies','Renters insurance, first 12 months','Aircraft for FAA exams'],
+     note:'For CPL holders who need a single engine rating added. Discounted price $29,500.'},
+    {v:'cfipm', t:'CFI + CFII + CFI MEL package + Multi Engine Add-On, $37,735', mo:[4,6], wr:3, ck:4, est:true,
+     steps:[{k:'cfiPackMel',n:'CFI / CFII / CFI MEL + Multi Engine Add-On'}],
+     incl:['Ground school','Pre- and post-flight briefings','ALSIM ALX simulator time','Dual instruction, Cessna 172 and Complex SEL','Piper Seminole for MEL and CFI MEL','Books and supplies','Renters insurance, first 12 months','Aircraft for FAA exams'],
+     note:'For CPL holders who need a multi engine rating added. Discounted price $30,115.'}
   ],
   ppl: [
     {v:'ir',   t:'Instrument Pilot Rating (IR), $14,653', mo:[3,4], wr:1, ck:1,
